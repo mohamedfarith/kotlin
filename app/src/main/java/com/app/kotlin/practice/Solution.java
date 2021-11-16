@@ -30,6 +30,8 @@ class Result {
 
             for (int x = 0; x < 4; x++) {
 
+
+
                 int top = arr.get(i).get(x) + arr.get(i).get(x + 1) + arr.get(i).get(x + 2);
                 int middle = arr.get(i + 1).get(x + 1);
                 int bottom = arr.get(i + 2).get(x) + arr.get(i + 2).get(x + 1) + arr.get(i + 2).get(x + 2);
