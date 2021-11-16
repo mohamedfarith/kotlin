@@ -27,6 +27,7 @@ class Result {
 
         int sum = -1000;
         for (int i = 0; i < 4; i++) {
+
             for (int x = 0; x < 4; x++) {
 
                 int top = arr.get(i).get(x) + arr.get(i).get(x + 1) + arr.get(i).get(x + 2);
