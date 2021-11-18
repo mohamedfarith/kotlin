@@ -1,5 +1,6 @@
 package com.app.kotlin.practice;
 
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
 import java.io.BufferedReader;
@@ -8,41 +9,40 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 class Result {
 
     /*
-     * Complete the 'hourglassSum' function below.
+     * Complete the 'matchingStrings' function below.
      *
-     * The function is expected to return an INTEGER.
-     * The function accepts 2D_INTEGER_ARRAY arr as parameter.
+     * The function is expected to return an INTEGER_ARRAY.
+     * The function accepts following parameters:
+     *  1. STRING_ARRAY strings
+     *  2. STRING_ARRAY queries
      */
 
-    public static int hourglassSum(List<List<Integer>> arr) {
+    public static List<Integer> matchingStrings(List<String> strings, List<String> queries) {
         // Write your code here
 
-
-        int sum = -1000;
-        for (int i = 0; i < 4; i++) {
-
-            for (int x = 0; x < 4; x++) {
-
-
-
-                int top = arr.get(i).get(x) + arr.get(i).get(x + 1) + arr.get(i).get(x + 2);
-                int middle = arr.get(i + 1).get(x + 1);
-                int bottom = arr.get(i + 2).get(x) + arr.get(i + 2).get(x + 1) + arr.get(i + 2).get(x + 2);
-                if (top + middle + bottom > sum) {
-                    sum = top + middle + bottom;
+        ArrayList<Integer> result= new ArrayList<>(Arrays.asList(new Integer[queries.size()]));
+        Collections.fill(result, 0);
+        for (int i = 0; i < queries.size(); i++) {
+            String query = queries.get(i);
+            for (int j = 0; j < strings.size(); j++) {
+                String value = strings.get(j);
+                if (query.contains(value)) {
+                    int val = result.get(j);
+                    val = val + 1;
+                    result.set(i, val);
                 }
             }
-
         }
+        return result;
 
-        return sum;
     }
 
 }
@@ -52,24 +52,36 @@ public class Solution {
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
         BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(System.getenv("OUTPUT_PATH")));
 
-        List<List<Integer>> arr = new ArrayList<>();
+        int stringsCount = Integer.parseInt(bufferedReader.readLine().trim());
 
-        IntStream.range(0, 6).forEach(i -> {
+        List<String> strings = IntStream.range(0, stringsCount).mapToObj(i -> {
             try {
-                arr.add(
-                        Stream.of(bufferedReader.readLine().replaceAll("\\s+$", "").split(" "))
-                                .map(Integer::parseInt)
-                                .collect(toList())
-                );
+                return bufferedReader.readLine();
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
-        });
+        })
+                .collect(toList());
 
-        int result = Result.hourglassSum(arr);
+        int queriesCount = Integer.parseInt(bufferedReader.readLine().trim());
 
-        bufferedWriter.write(String.valueOf(result));
-        bufferedWriter.newLine();
+        List<String> queries = IntStream.range(0, queriesCount).mapToObj(i -> {
+            try {
+                return bufferedReader.readLine();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        })
+                .collect(toList());
+
+        List<Integer> res = Result.matchingStrings(strings, queries);
+
+        bufferedWriter.write(
+                res.stream()
+                        .map(Object::toString)
+                        .collect(joining("\n"))
+                        + "\n"
+        );
 
         bufferedReader.close();
         bufferedWriter.close();

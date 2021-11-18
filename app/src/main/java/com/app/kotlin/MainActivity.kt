@@ -5,10 +5,10 @@ import android.net.ConnectivityManager
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.app.kotlin.adapters.MovieListAdapter
@@ -19,11 +19,10 @@ import com.app.kotlin.viewModelClasses.MainActViewModel
 import com.facebook.drawee.backends.pipeline.Fresco
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.scopes.ActivityScoped
 import java.util.*
 import javax.inject.Inject
 
-
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private lateinit var mainBinding: ActivityMainBinding
     private val TAG = "MainActivity"
@@ -37,6 +36,10 @@ class MainActivity : AppCompatActivity() {
     var language = "ta"
     lateinit var layoutManager: LinearLayoutManager;
     lateinit var movieListAdapter: MovieListAdapter
+    private val mainViewModel: MainActViewModel by viewModels()
+
+    @Inject
+    lateinit var localStorage: LocalStorage;
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -90,20 +93,16 @@ class MainActivity : AppCompatActivity() {
 
     //making network call to the movie db api
     fun getDataFromApi(number: Int) {
-        if (LocalStorage.getStorageInstance(applicationContext).contains(Constants.SELECTED_YEAR)) {
+        if (localStorage.contains(Constants.SELECTED_YEAR)) {
             year = Integer.parseInt(
-                LocalStorage.getStorageInstance(applicationContext)
-                    .getString(Constants.SELECTED_YEAR)
+                localStorage?.getString(Constants.SELECTED_YEAR)
             )
         }
-        if (LocalStorage.getStorageInstance(applicationContext)
-                .contains(Constants.SELECTED_LANGUAGE)
+        if (localStorage.contains(Constants.SELECTED_LANGUAGE)
         ) {
-            language = LocalStorage.getStorageInstance(applicationContext)
-                .getString(Constants.SELECTED_LANGUAGE)!!
+            language = localStorage.getString(Constants.SELECTED_LANGUAGE)!!
 
         }
-        val mainViewModel = ViewModelProvider(this).get(MainActViewModel::class.java)
         mainViewModel.getMovieDetails(number, language, year).observe(this, { movies ->
             run {
                 bindData(movies)

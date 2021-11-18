@@ -11,10 +11,16 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.RecyclerView
 import com.app.kotlin.databinding.FilterFragmentBinding
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class FilterFragment : DialogFragment() {
 
     lateinit var binding: FilterFragmentBinding
+
+    @Inject
+    lateinit var localStorage: LocalStorage;
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,16 +41,16 @@ class FilterFragment : DialogFragment() {
 
         binding.language.setOnClickListener {
             //Language selected
-            binding.adapter = FilterRecyclerAdapter("language")
+            binding.adapter = FilterRecyclerAdapter("language", localStorage)
         }
         binding.year.setOnClickListener {
             //year selected
-            binding.adapter = FilterRecyclerAdapter("year")
+            binding.adapter = FilterRecyclerAdapter("year", localStorage)
 
         }
-        binding.applyButton.setOnClickListener(View.OnClickListener {
+        binding.applyButton.setOnClickListener {
             binding.adapter?.getSelectedOption()
-        })
+        }
 
 
     }
@@ -69,7 +75,7 @@ class FilterFragment : DialogFragment() {
     }
 
 
-    class FilterRecyclerAdapter(val type: String) :
+    class FilterRecyclerAdapter(val type: String, var localStorage: LocalStorage) :
         RecyclerView.Adapter<FilterViewHolder>() {
         val LANGUAGE_TEXT: Int = 1234
         val YEAR_TEXT: Int = 123
@@ -106,12 +112,13 @@ class FilterFragment : DialogFragment() {
                 if (tag.equals("language")) {
                     var value = (it as TextView).text.toString()
                     Constants.LANGUAGE_LIST.get(value)?.let { it1 ->
-                        LocalStorage.getStorageInstance(it.context)
-                            .putString(Constants.SELECTED_LANGUAGE, it1)
+                        localStorage.putString(Constants.SELECTED_LANGUAGE, it1)
                     }
                 } else if (tag.equals("year"))
-                    LocalStorage.getStorageInstance(it.context)
-                        .putString(Constants.SELECTED_YEAR, (it as TextView).text.toString())
+                    localStorage.putString(
+                        Constants.SELECTED_YEAR,
+                        (it as TextView).text.toString()
+                    )
             }
 
         }
