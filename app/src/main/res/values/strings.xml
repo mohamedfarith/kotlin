@@ -1,3 +1,8 @@
 <resources>
-    <string name="app_name">kotlin</string>
+    <string name="app_name">Movie App</string>
+    <string name="branch_key_test">key_test_dc3QpRGq8o3NsgBTbUnGschlqva0lPuk</string>
+    <string name="branch_key_live">key_live_obXUbINC6i1HEkCLlHhHFcaoszbYcTf7</string>
+    <string name="branch_host">8sjg2.test-app.link</string>
+    <string name="branch_alternate_host">8sjg2-alternate.test-app.link</string>
+    <string name="action_share">Share</string>
 </resources>

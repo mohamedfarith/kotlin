@@ -22,8 +22,7 @@ interface ApiInterface {
         @Query("api_key") apiKey: String,
         @Query("page") page: Int,
         @Query("sort_by") sortBy: String,
-        @Query("with_original_language") language: String,
-        @Query("year") year: Int
+        @Query("with_original_language") language: String
     ): Response<Movies>
 
     @GET("movie/{movie_id}")

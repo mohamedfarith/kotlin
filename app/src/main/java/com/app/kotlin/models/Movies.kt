@@ -15,7 +15,7 @@ class Movies() : Serializable {
     var totalPages: String? = null
 
     @SerializedName("results")
-    var results: List<MovieDetails>? = null
+    var results: ArrayList<MovieDetails>? = null
 }
 
 

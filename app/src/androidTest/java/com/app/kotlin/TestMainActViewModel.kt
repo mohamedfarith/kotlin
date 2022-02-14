@@ -22,18 +22,18 @@ class TestMainActViewModel : TestCase() {
     @Before
     override fun setUp() {
         super.setUp()
-        viewModel = MainActViewModel()
-        var context = ApplicationProvider.getApplicationContext<Context>()
-        var intent = Intent(context,MainActivity::class)
-        activity  = ActivityScenario.launch(MainActivity::class)
-        lifeCyclerOwner = ApplicationProvider.getApplicationContext<Context>()
+//        viewModel = MainActViewModel()
+//        var context = ApplicationProvider.getApplicationContext<Context>()
+//        var intent = Intent(context,MainActivity::class)
+//        activity  = ActivityScenario.launch(MainActivity::class)
+//        lifeCyclerOwner = ApplicationProvider.getApplicationContext<Context>()
 
 
     }
 
     @Test
     private fun testMovieDetails() {
-        viewModel.getMovieDetails(1, "ta", 2020).observe(lifeCyclerOwner, { movies ->
+        viewModel.getMovieDetails(1, "ta").observe(lifeCyclerOwner, { movies ->
             run {
                 movies.let { assertTrue(it != null) }
             }

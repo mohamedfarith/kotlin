@@ -3,7 +3,9 @@
     package="com.app.kotlin">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
+
     <application
         android:name=".ApplicationClass"
         android:allowBackup="true"
@@ -15,13 +17,46 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.Design.Light.NoActionBar"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="@string/branch_host"
+                    android:scheme="https" />
+                <data
+                    android:host="@string/branch_alternate_host"
+                    android:scheme="https" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="movieapp" />
+            </intent-filter>
         </activity>
+
+        <meta-data
+            android:name="io.branch.sdk.BranchKey.test"
+            android:value="@string/branch_key_test" />
+        <meta-data
+            android:name="io.branch.sdk.BranchKey"
+            android:value="@string/branch_key_live" />
+        <meta-data
+            android:name="io.branch.sdk.TestMode"
+            android:value="@bool/test_mode" />
     </application>
 
 </manifest>

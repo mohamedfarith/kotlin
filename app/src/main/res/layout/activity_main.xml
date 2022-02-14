@@ -39,13 +39,29 @@
             android:layout_margin="20dp"
             android:background="?android:attr/selectableItemBackgroundBorderless"
             android:gravity="end"
-            android:text="ADD FILTER"
             android:onClick="showFilterScreen"
+            android:text="ADD FILTER"
             android:textColor="@color/black"
+            android:visibility="gone"
             app:layout_constraintBottom_toTopOf="@id/movie_list_view"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/my_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="#908D8D"
+            android:elevation="4dp"
+            android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+            app:title="@string/app_name"
+            app:menu="@menu/main_actvivty_menu"
+            app:titleTextColor="@color/white" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/movie_list_view"
@@ -60,7 +76,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/filter_button" />
+            app:layout_constraintTop_toBottomOf="@id/my_toolbar" />
 
 
         <ProgressBar
