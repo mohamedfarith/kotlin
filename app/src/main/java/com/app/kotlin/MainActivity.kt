@@ -5,7 +5,6 @@ import android.graphics.PorterDuff
 import android.net.ConnectivityManager
 import android.os.Bundle
 import android.text.TextUtils
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -26,15 +25,10 @@ import com.facebook.drawee.backends.pipeline.Fresco
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
-import io.branch.indexing.BranchUniversalObject
 import io.branch.referral.Branch
 import io.branch.referral.Branch.BranchReferralInitListener
 import io.branch.referral.BranchError
-import io.branch.referral.SharingHelper
 import io.branch.referral.util.BRANCH_STANDARD_EVENT
-import io.branch.referral.util.BranchEvent
-import io.branch.referral.util.LinkProperties
-import io.branch.referral.util.ShareSheetStyle
 import io.branch.referral.validators.IntegrationValidator
 import org.json.JSONObject
 import java.util.*
@@ -45,16 +39,15 @@ import javax.inject.Inject
 class MainActivity : AppCompatActivity() {
     private lateinit var mainBinding: ActivityMainBinding
     private val tag = "MainActivity"
-    var movieDetailsArrayList = ArrayList<MovieDetails>()
-    var pastVisibleItems = 0
-    var visibleItemCount = 0
-    var totalItemConut = 0
-    var isScrolling = false
-    var pageNumber = 1
-    var year = 2020
-    var language = "ta"
-    lateinit var layoutManager: LinearLayoutManager;
-    lateinit var movieListAdapter: MovieListAdapter
+    private var movieDetailsArrayList = ArrayList<MovieDetails>()
+    private var pastVisibleItems = 0
+    private var visibleItemCount = 0
+    private var totalItemConut = 0
+    private var isScrolling = false
+    private var pageNumber = 1
+    private var language = ""
+    private lateinit var layoutManager: LinearLayoutManager
+    private lateinit var movieListAdapter: MovieListAdapter
     private val mainViewModel: MainActViewModel by viewModels()
 
     @Inject
@@ -93,16 +86,15 @@ class MainActivity : AppCompatActivity() {
             if (!TextUtils.isEmpty(value)) {
                 val languageClass = Gson().fromJson(value, DetailClass::class.java)
                 localStorage.putString(Constants.SELECTED_LANGUAGE, languageClass.language)
-                addBranchEvent()
+                localStorage.getString(Constants.SELECTED_LANGUAGE)?.let {
+                    UtilsClass.addBranchEvent(
+                        this, BRANCH_STANDARD_EVENT.LOGIN, "language",
+                        it
+                    )
+                }
             }
         }
 
-    }
-
-    private fun addBranchEvent() {
-        BranchEvent(BRANCH_STANDARD_EVENT.LOGIN)
-            .addCustomDataProperty("language", localStorage.getString(Constants.SELECTED_LANGUAGE))
-            .logEvent(this)
     }
 
     override fun onStart() {
@@ -147,48 +139,27 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun shareAppLink() {
-        val linkProperties = LinkProperties().apply {
-            channel = "g_drive"
-            campaign = "task"
-            feature = "marketing"
-            addControlParameter("\$android_url", resources.getString(R.string.branch_host))
-            addControlParameter(
-                "\$deeplink_path",
-                Gson().toJson(localStorage.getString(Constants.SELECTED_LANGUAGE)?.let { language ->
-                    DetailClass(language)
-                })
-            )
-        }
-        val shareSheetStyle =
-            ShareSheetStyle(this@MainActivity, "Check this out!", "This stuff is awesome: ")
-                .setCopyUrlStyle(
-                    ContextCompat.getDrawable(this@MainActivity, android.R.drawable.ic_menu_send),
-                    "Copy",
-                    "Added to clipboard"
-                )
-                .setMoreOptionStyle(
-                    ContextCompat.getDrawable(this@MainActivity, android.R.drawable.ic_menu_search),
-                    "Show more"
-                )
-                .addPreferredSharingOption(SharingHelper.SHARE_WITH.FACEBOOK)
-                .addPreferredSharingOption(SharingHelper.SHARE_WITH.EMAIL)
-                .addPreferredSharingOption(SharingHelper.SHARE_WITH.WHATS_APP)
-                .setAsFullWidthStyle(true)
-                .setSharingTitle("Share With")
+        val selectedLanguage = localStorage.getString(Constants.SELECTED_LANGUAGE)
+        val detailsClass = selectedLanguage?.let { DetailClass(it) }
 
-        BranchUniversalObject().apply {
-            canonicalIdentifier
-            title
-            setContentDescription("data")
-            showShareSheet(
-                this@MainActivity,
-                linkProperties,
-                shareSheetStyle,
+        detailsClass?.let {
+            LayoutUtils.getInstance.generateShareSheetDialog(
+                this@MainActivity, it,
                 object : Branch.BranchLinkShareListener {
                     override fun onShareLinkDialogLaunched() {
+                        UtilsClass.addBranchEvent(
+                            this@MainActivity,
+                            Constants.SS_LAUNCHED, "", ""
+                        )
                     }
 
                     override fun onShareLinkDialogDismissed() {
+                        UtilsClass.addBranchEvent(
+                            this@MainActivity,
+                            Constants.SS_DISSMISSED,
+                            "",
+                            ""
+                        )
                     }
 
                     override fun onLinkShareResponse(
@@ -196,12 +167,26 @@ class MainActivity : AppCompatActivity() {
                         sharedChannel: String?,
                         error: BranchError?
                     ) {
+                        UtilsClass.addBranchEvent(
+                            this@MainActivity,
+                            Constants.LINK_SHARED,
+                            "CLICK",
+                            "SHARE"
+                        )
+
                     }
 
                     override fun onChannelSelected(channelName: String?) {
+                        UtilsClass.addBranchEvent(
+                            this@MainActivity,
+                            Constants.SS_CHANNEL_SELECTED,
+                            "CLICK",
+                            "SHARE"
+                        )
                     }
 
                 })
+
         }
 
     }
@@ -238,14 +223,8 @@ class MainActivity : AppCompatActivity() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 visibleItemCount = layoutManager.childCount
-                Log.d(tag, "onScrolled: child count is $visibleItemCount")
                 totalItemConut = layoutManager.itemCount
-                Log.d(tag, "onScrolled: total item count is $totalItemConut")
                 pastVisibleItems = layoutManager.findFirstVisibleItemPosition()
-                Log.d(
-                    tag,
-                    "onScrolled: first visible item position $pastVisibleItems"
-                )
                 if (dy > 0) {
                     if (isScrolling) {
                         if (visibleItemCount + pastVisibleItems == totalItemConut) {
@@ -267,11 +246,6 @@ class MainActivity : AppCompatActivity() {
 
     //making network call to the movie db api
     private fun getDataFromApi(number: Int) {
-        if (localStorage.contains(Constants.SELECTED_YEAR)) {
-            year = Integer.parseInt(
-                localStorage?.getString(Constants.SELECTED_YEAR)
-            )
-        }
         if (localStorage.contains(Constants.SELECTED_LANGUAGE)) {
             language = localStorage.getString(Constants.SELECTED_LANGUAGE)!!
 
@@ -290,7 +264,6 @@ class MainActivity : AppCompatActivity() {
     private fun bindData(movies: Movies) {
         val page = movies.page
         if (page != "") {
-            Log.d(tag, "into movies obj: $page")
             addMovieDetails(movies)
             mainBinding.progressBar.visibility = View.INVISIBLE
             mainBinding.loadMoreProgressbar.visibility = View.GONE
@@ -299,12 +272,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     //getting the values of the response from api
-    fun addMovieDetails(movies: Movies?) {
+    private fun addMovieDetails(movies: Movies?) {
         val size = movies?.results?.size
         val movieDetails = ArrayList<MovieDetails>()
         if (size != null)
             for (i in 0 until size) {
-                Log.d(tag, "fetchMovieDetails: ")
                 movies.results?.get(i)?.let { movieDetails.add(it) }
             }
         movieDetailsArrayList.addAll(movieDetails)

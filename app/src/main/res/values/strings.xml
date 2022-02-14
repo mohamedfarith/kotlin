@@ -5,4 +5,5 @@
     <string name="branch_host">8sjg2.test-app.link</string>
     <string name="branch_alternate_host">8sjg2-alternate.test-app.link</string>
     <string name="action_share">Share</string>
+    <string name="share_description">Try this app to explore all your favorite movies</string>
 </resources>
