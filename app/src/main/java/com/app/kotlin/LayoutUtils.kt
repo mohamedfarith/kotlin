@@ -24,8 +24,8 @@ class LayoutUtils {
     ) {
         val linkProperties = LinkProperties().apply {
             channel = "g_drive"
-            campaign = "task"
-            feature = "marketing"
+            campaign = "share"
+            feature = "referrals"
             addControlParameter("\$android_url", context.resources.getString(R.string.branch_host))
             addControlParameter(
                 "\$deeplink_path", Gson().toJson(deeplinkData)
